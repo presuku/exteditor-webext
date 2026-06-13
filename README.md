@@ -15,43 +15,7 @@ welcome!
 
 ## Installation
 
-To clone the repository:
-
-```sh
-$ git clone --recurse-submodules https://github.com/jlebon/textern
-$ cd textern
-```
-
-IMPORTANT: make sure that your git checkout includes
-submodules (either use the `--recurse-submodules` when
-running `git clone` as shown above, or use
-`git submodule update --init` if already cloned).
-
-To install the native app, run:
-
-```sh
-$ sudo make native-install
-```
-
-To uninstall it, run:
-
-```sh
-$ sudo make native-uninstall
-```
-
-On distros which do not use `/usr/lib64` (such as
-Debian/Ubuntu), you'll want to override `LIBDIR`:
-
-```sh
-$ sudo make native-install LIBDIR=/usr/lib
-```
-
-If you do not have root privileges or wish to only install
-the native app for the current user, run:
-
-```sh
-$ make native-install USER=1
-```
+TBD
 
 ## Usage
 
@@ -182,18 +146,6 @@ Some things to try if it doesn't work properly:
  * Make sure you cloned the repo with `--recurse-submodules` (see installation instructions above)
  * Try re-installing but for your local user (`make native-install USER=1` instead of `sudo make native-install`)
  * Check if Textern is running in the background (`ps aux | grep textern`)
-
-### Firejail
-
-[Firejail](https://firejail.wordpress.com/) is a sandboxing program to restrict what your browser can do. It will prevent Textern from working.
-
-If you install Textern with USER=1, and your firejail instance is not using apparmor, then add to /etc/firejail/firejail.local:
-
-    whitelist ${HOME}/.local/libexec/textern/
-    noblacklist ${PATH}/python3*
-    noblacklist /usr/lib/python3*
-
-If apparmor is enabled, then add the Python lines to firejail.local and see [issue 52](#52).
 
 ## Related Projects
 
