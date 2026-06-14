@@ -97,7 +97,7 @@ function registerText(event) {
         var id = watchElement(e);
         /* don't use href directly to not bring in e.g. url params */
         var simple_url = window.location.hostname + window.location.pathname
-        browser.runtime.sendMessage("textern@jlebon.com", {
+        browser.runtime.sendMessage("exteditor.webext@example.com", {
             type: "register_text",
             id: id,
             text: e.value,
@@ -116,7 +116,7 @@ function registerText(event) {
         } else {
             text = e.innerText;
         }
-        browser.runtime.sendMessage("textern@jlebon.com", {
+        browser.runtime.sendMessage("exteditor.webext@example.com", {
             type: "register_text",
             id: id,
             text: text,
@@ -172,7 +172,7 @@ function setText(id, text) {
 }
 
 function onMessage(message, sender, respond) {
-    if (sender.id != "textern@jlebon.com")
+    if (sender.id != "exteditor.webext@example.com")
         return;
     if (message.type == "set_text")
         setText(message.id, message.text);
@@ -181,11 +181,10 @@ function onMessage(message, sender, respond) {
     }
 }
 
-browser.runtime.onMessage.addListener(onMessage);
 
 var currentShortcut = undefined;
 function registerShortcut(force) {
-    browser.storage.local.get({shortcut: "Ctrl+Shift+D"}).then(val => {
+    browser.storage.local.get({shortcut: "Ctrl+E"}).then(val => {
         if ((val.shortcut == currentShortcut) && !force)
             return; /* no change */
         if (currentShortcut != undefined)
@@ -195,19 +194,30 @@ function registerShortcut(force) {
     });
 }
 
-registerShortcut(true);
-
-/* meh, we just re-apply the shortcut -- XXX: should check what actually changed */
-browser.storage.onChanged.addListener(function(changes, areaName) {
+function onChanged(changes, areaName) {
     registerShortcut(false);
-});
+}
 
-/* we also want to make sure we re-register whenever the number of iframes changes */
-var lastNumFrames = window.frames.length;
-const observer = new MutationObserver(function() {
-    if (window.frames.length != lastNumFrames) {
-        registerShortcut(true);
-        lastNumFrames = window.frames.length;
-    }
-});
-observer.observe(document, {childList: true, subtree: true});
+(async () => {
+    browser.runtime.onMessage.addListener(onMessage);
+    registerShortcut(true);
+
+    /* meh, we just re-apply the shortcut -- XXX: should check what actually changed */
+    browser.storage.onChanged.addListener(onChanged);
+
+    /* we also want to make sure we re-register whenever the number of iframes changes */
+    var lastNumFrames = window.frames.length;
+    const observer = new MutationObserver(function() {
+        if (window.frames.length != lastNumFrames) {
+            registerShortcut(true);
+            lastNumFrames = window.frames.length;
+        }
+    });
+    observer.observe(document, {childList: true, subtree: true});
+
+    window.addEventListener('unload', () => {
+        browser.runtime.onMessage.removeListener(onMessage);
+        browser.storage.onChanged.removeListener(onChanged);
+    });
+})();
+

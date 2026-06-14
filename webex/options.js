@@ -15,7 +15,7 @@ function saveOptions(e) {
     browser.storage.local.set({
         editor: document.querySelector("#editor").value,
         shortcut: document.querySelector("#shortcut").value,
-        extension: document.querySelector("#extension").value,
+        extension: document.querySelector("#extension").value
     });
     document.querySelector("#saved").innerHTML = '\u2713';
 }
@@ -24,20 +24,17 @@ function clearCheckmark(e) {
     document.querySelector("#saved").innerHTML = "";
 }
 
-function restoreOptions() {
-
-    browser.storage.local.get("editor").then(result => {
-        document.querySelector("#editor").value =
-            result.editor || "[\"gedit\", \"+%l:%c\"]";
-    }, onError);
-
-    browser.storage.local.get("shortcut").then(result => {
-        document.querySelector("#shortcut").value = result.shortcut || "Ctrl+Shift+D";
-    }, onError);
-
-    browser.storage.local.get("extension").then(result => {
-        document.querySelector("#extension").value = result.extension || "txt";
-    }, onError);
+async function restoreOptions() {
+    let r = await browser.storage.local.get({
+        editor: "[\"gedit\", \"+%l:%c\"]",
+        shortcut: "Ctrl+E",
+        extension: "txt",
+    }).catch(onError);
+    await Promise.all([
+        (async () => { document.querySelector("#editor").value = r.editor })(),
+        (async () => { document.querySelector("#shortcut").value = r.shortcut })(),
+        (async () => { document.querySelector("#extension").value = r.extension })(),
+    ]);
 }
 
 document.addEventListener("DOMContentLoaded", restoreOptions);

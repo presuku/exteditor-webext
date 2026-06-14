@@ -64,7 +64,7 @@ function unregisterDoc(id) {
     }
 }
 
-function registerDoc(tid, eid, text, caret, url) {
+async function registerDoc(tid, eid, text, caret, url) {
 
     var id = `${tid}_${eid}`;
     if (activeDocs.indexOf(id) != -1) {
@@ -75,7 +75,13 @@ function registerDoc(tid, eid, text, caret, url) {
 
     activeDocs.push(id);
     if (port == undefined) {
-        port = browser.runtime.connectNative("textern");
+        port = browser.runtime.connectNative("exteditor");
+        if (port.error) {
+            unregisterDoc(id);
+            notifyError("connect to native application failed");
+            logError(p.error);
+            return;
+        }
         port.onMessage.addListener((response) => {
             handleNativeMessage(response);
         });
@@ -89,24 +95,21 @@ function registerDoc(tid, eid, text, caret, url) {
         });
     }
 
-    browser.storage.local.get({
+    const values = await browser.storage.local.get({
         editor: "[\"gedit\", \"+%l:%c\"]",
         extension: "txt",
-    }).then(values => {
-        port.postMessage({
-            type: "new_text",
-            payload: {
-                id: id,
-                text: text,
-                caret: caret,
-                url: url,
-                prefs: {
-                    editor: values.editor,
-                    extension: values.extension,
-                }
-            }
-        });
-    }, logError);
+    }).catch(logError);
+    port.postMessage({
+        type: "new_text",
+        payload: {
+            id: id,
+            text: text,
+            caret: caret,
+            subject: url,
+            editor: values.editor,
+            extension: values.extension
+        }
+    });
 }
 
 function handleRegisterText(tabId, message) {
@@ -114,7 +117,7 @@ function handleRegisterText(tabId, message) {
 }
 
 function onMessage(message, sender, respond) {
-    if (sender.id != "textern@jlebon.com")
+    if (sender.id != "exteditor.mailext@example.com")
         return;
     var tabId = sender.tab.id;
     if (message.type == "register_text")
@@ -123,4 +126,9 @@ function onMessage(message, sender, respond) {
         console.log(`Unknown message type: ${message.type}`);
 }
 
-browser.runtime.onMessage.addListener(onMessage);
+(async () => {
+    browser.runtime.onMessage.addListener(onMessage);
+    window.addEventListener('unload', () => {
+        browser.runtime.onMessage.removeListener(onMessage);
+    });
+})();
