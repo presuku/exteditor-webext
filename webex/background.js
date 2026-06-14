@@ -92,7 +92,6 @@ function registerDoc(tid, eid, text, caret, url) {
     browser.storage.local.get({
         editor: "[\"gedit\", \"+%l:%c\"]",
         extension: "txt",
-        backupdir: ""
     }).then(values => {
         port.postMessage({
             type: "new_text",
@@ -104,7 +103,6 @@ function registerDoc(tid, eid, text, caret, url) {
                 prefs: {
                     editor: values.editor,
                     extension: values.extension,
-                    backupdir: values.backupdir
                 }
             }
         });
