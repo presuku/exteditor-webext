@@ -1,5 +1,6 @@
 /* vim: set et ts=4 tw=92:
  * Copyright (C) 2017-2018  Jonathan Lebon <jonathan@jlebon.com>
+ * Copyright (C) 2026  presuku <presuku.stdio+eem@gmail.com>
  * This file is part of External Editor for WebExtension.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
