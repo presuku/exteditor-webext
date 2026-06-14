@@ -1,6 +1,6 @@
 /* vim: set et ts=4 tw=92:
  * Copyright (C) 2017-2018  Jonathan Lebon <jonathan@jlebon.com>
- * This file is part of Textern.
+ * This file is part of External Editor for WebExtension.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -21,7 +21,7 @@ function assertNoResponse(response) {
 function notifyError(error) {
     browser.notifications.create({
         type: "basic",
-        title: "Textern",
+        title: "External Editor",
         message: "Error: " + error + "."
     });
 }
