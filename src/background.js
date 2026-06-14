@@ -118,7 +118,7 @@ function handleRegisterText(tabId, message) {
 }
 
 function onMessage(message, sender, respond) {
-    if (sender.id != "exteditor.mailext@example.com")
+    if (sender.id != "exteditor.webext@example.com")
         return;
     var tabId = sender.tab.id;
     if (message.type == "register_text")
